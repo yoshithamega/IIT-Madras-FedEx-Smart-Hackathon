@@ -1,27 +1,37 @@
 import streamlit as st
+from pipeline.recovery_pipeline import run_pipeline
 
-# Page Title
-st.title("DCA Analytics & Performance Dashboard")
+st.set_page_config(page_title="FedEx DCA AI Platform", layout="wide")
 
-st.write("Real-time visibility into recovery performance and SLA compliance")
+st.title("AI-Driven DCA Management Platform")
 
-# Sample data (demo purpose)
-total_cases = 120
-recovered_cases = 85
-pending_cases = total_cases - recovered_cases
-sla_compliance = 92
-top_dca = "DCA A"
+# -------- DASHBOARD --------
+st.header("📊 Analytics Dashboard")
 
-# Display metrics
-st.subheader("Key Metrics")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Total Overdue Cases", 120)
+col2.metric("Recovered Cases", 85)
+col3.metric("Pending Cases", 35)
+col4.metric("SLA Compliance", "92%")
 
-col1, col2, col3 = st.columns(3)
+st.divider()
 
-col1.metric("Total Overdue Cases", total_cases)
-col2.metric("Recovered Cases", recovered_cases)
-col3.metric("Pending Cases", pending_cases)
+# -------- DECISION ENGINE --------
+st.header("🤖 AI Decision Engine")
 
-st.metric("SLA Compliance (%)", sla_compliance)
+amount = st.number_input("Outstanding Amount (₹)", min_value=1000)
+overdue_days = st.number_input("Overdue Days", min_value=1)
+past_behavior = st.selectbox("Customer Past Behavior", ["Good", "Average", "Poor"])
 
-st.subheader("Top Performing DCA")
-st.success(top_dca)
+if st.button("Run Recovery Decision"):
+    case = {
+        "amount": amount,
+        "overdue_days": overdue_days,
+        "past_behavior": past_behavior
+    }
+
+    result = run_pipeline(case)
+
+    st.success(f"Recommended Action: {result['action']}")
+    st.info(f"Assigned DCA: {result['dca']} (Trust Score: {result['trust_score']})")
+    st.warning(f"SLA: {result['sla']}")
